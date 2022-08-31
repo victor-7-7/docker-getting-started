@@ -1,0 +1,41 @@
+version: "3.8"
+
+#services:
+#  docs:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#      target: dev
+#    ports:
+#      - 8000:8000
+#    volumes:
+#      - ./:/app
+
+services:
+  app:
+    image: node:12-alpine
+    command: sh -c "yarn install && yarn run dev"
+    ports:
+      - 3000:3000
+    working_dir: /app
+    # Для [- ./:/app] была ошибка: error Couldn't find a package.json file in "/app"
+    # https://github.com/docker/getting-started/issues/102
+    # Фикс [- ./app:/app]
+    volumes:
+      - ./app:/app
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: secret
+      MYSQL_DB: todos
+
+  mysql:
+    image: mysql:5.7
+    volumes:
+      - todo-mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: todos
+
+volumes:
+  todo-mysql-data:
